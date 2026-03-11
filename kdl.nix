@@ -42,7 +42,21 @@ let
   ];
   serialize.path = serialize.string;
   serialize.int = toString;
-  serialize.float = toString;
+  serialize.float =
+    v:
+    let
+      str = toString v;
+      trimZeros =
+        s:
+        if lib.hasSuffix "0" s && lib.hasInfix "." s then
+          let
+            trimmed = lib.removeSuffix "0" s;
+          in
+          if lib.hasSuffix "." trimmed then "${trimmed}0" else trimZeros trimmed
+        else
+          s;
+    in
+    trimZeros str;
   serialize.bool = v: if v then "true" else "false";
   serialize.null = lib.const "null";
 
